@@ -1,25 +1,103 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import './index.css';
 
-function App() {
+const TodoList = () => {
+  const [tasks, setTasks] = useState([
+    { id: 1, name: 'Task 1', completed: false },
+    { id: 2, name: 'Task 2', completed: true },
+    { id: 3, name: 'Task 3', completed: false }
+  ]);
+
+  const [sortBy, setSortBy] = useState('inputOrder');
+  const [newTaskName, setNewTaskName] = useState('');
+
+  const handleSortChange = (event) => {
+    setSortBy(event.target.value);
+  };
+
+  const sortedTasks = [...tasks].sort((a, b) => {
+    if (sortBy === 'name') {
+      return a.name.localeCompare(b.name);
+    } else if (sortBy === 'completed') {
+      return a.completed === b.completed ? 0 : a.completed ? 1 : -1;
+    }
+    // Default: sort by input order (no change to order)
+    return 0;
+  });
+
+  const toggleTaskCompletion = (taskId) => {
+    const updatedTasks = tasks.map(task =>
+      task.id === taskId ? { ...task, completed: !task.completed } : task
+    );
+    setTasks(updatedTasks);
+  };
+
+  const handleTaskDelete = (taskId) => {
+    const updatedTasks = tasks.filter(task => task.id !== taskId);
+    setTasks(updatedTasks);
+  };
+
+  const handleAddTask = () => {
+    if (newTaskName.trim() !== '') {
+      const newTask = {
+        id: tasks.length + 1,
+        name: newTaskName,
+        completed: false
+      };
+      setTasks([...tasks, newTask]);
+      setNewTaskName('');
+    }
+  };
+
+  // Calculate task summary
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter(task => task.completed).length;
+  const completionPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>To-Do List</h1>
+      <div className="sort-container">
+        <label htmlFor="sort">Sort by:</label>
+        <select id="sort" value={sortBy} onChange={handleSortChange}>
+          <option value="inputOrder">Input Order</option>
+          <option value="name">Name</option>
+          <option value="completed">Completed</option>
+    </select>
+  </div>
+      
+      <div className="task-container">
+        <input
+          type="text"
+          value={newTaskName}
+          onChange={(e) => setNewTaskName(e.target.value)}
+          placeholder="Enter new task"
+        />
+        <button onClick={handleAddTask}>Add Task</button>
+      </div>
+      
+      <ul>
+        {sortedTasks.map(task => (
+          <li key={task.id}>
+            <input
+              type="checkbox"
+              checked={task.completed}
+              onChange={() => toggleTaskCompletion(task.id)}
+            />
+            <span style={{ textDecoration: task.completed ? 'line-through' : 'none' }}>
+              {task.name}
+            </span>
+            <button onClick={() => handleTaskDelete(task.id)}>Delete</button>
+          </li>
+        ))}
+      </ul>
+
+      <p>
+        You have {totalTasks} {totalTasks === 1 ? 'item' : 'items'} in your list.
+        You have already completed {completedTasks}. {completionPercentage}% completed.
+      </p>
     </div>
   );
-}
+};
 
-export default App;
+export default TodoList;
