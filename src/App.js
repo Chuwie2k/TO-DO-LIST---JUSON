@@ -131,8 +131,11 @@ const TodoList = () => {
 
       <p>
         You have {totalTasks} {totalTasks === 1 ? "item" : "items"} in your
-        list. You have already completed {completedTasks}.{" "}
-        {completionPercentage}% completed.
+        To-Do List.
+        {completedTasks > 0
+          ? ` You have already completed ${completedTasks} task${completedTasks === 1 ? "" : "s"}.`
+          : ""}
+        {totalTasks > 0 ? ` ${completionPercentage}% completed.` : ""}
       </p>
     </div>
   );
